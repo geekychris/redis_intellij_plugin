@@ -1,0 +1,121 @@
+<idea-plugin>
+    <!-- Plugin metadata -->
+    <id>com.redis.plugin.redis-intellij-plugin</id>
+    <name>Redis Client</name>
+    <vendor email="support@example.com" url="http://www.example.com">Redis Plugin</vendor>
+
+    <!-- Product and platform compatibility requirements -->
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.lang</depends>
+    <depends>com.intellij.modules.java</depends>
+
+    <!-- Resource bundle for i18n -->
+    <resource-bundle>messages.RedisPluginBundle</resource-bundle>
+
+    <!-- Plugin components and extension points -->
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Tool Window -->
+        <toolWindow id="Redis Client" 
+                    anchor="right" 
+                    factoryClass="com.redis.plugin.ui.RedisToolWindowFactory" 
+                    icon="/icons/redis.svg"/>
+        
+        <!-- Services -->
+        <applicationService serviceImplementation="com.redis.plugin.service.RedisConnectionManager"/>
+        <applicationService serviceImplementation="com.redis.plugin.service.RedisCommandCatalog"/>
+        
+        <!-- Configuration -->
+        <applicationConfigurable groupId="tools" 
+                                instance="com.redis.plugin.config.RedisConnectionConfigurable" 
+                                id="com.redis.plugin.config.RedisConnectionConfigurable" 
+                                displayName="Redis Connections"/>
+        
+        <!-- Persistence -->
+        <projectService serviceImplementation="com.redis.plugin.service.RedisHistoryService"/>
+        
+        <!-- Notifications -->
+        <notificationGroup id="Redis Plugin Notifications"
+                          displayType="BALLOON"
+                          key="redis.notification.group"/>
+    </extensions>
+
+    <!-- Actions -->
+    <actions>
+        <!-- Tool Window Actions -->
+        <group id="Redis.ToolWindow.Toolbar" 
+               text="Redis Actions" 
+               description="Redis plugin actions">
+            <action id="Redis.NewConnection" 
+                    class="com.redis.plugin.actions.NewConnectionAction" 
+                    text="New Connection" 
+                    description="Create a new Redis connection" 
+                    icon="AllIcons.General.Add"/>
+            <action id="Redis.ExecuteCommand" 
+                    class="com.redis.plugin.actions.ExecuteCommandAction" 
+                    text="Execute Command" 
+                    description="Execute Redis command" 
+                    icon="AllIcons.Actions.Execute">
+                <keyboard-shortcut keymap="$default" first-keystroke="control ENTER"/>
+            </action>
+            <action id="Redis.Refresh" 
+                    class="com.redis.plugin.actions.RefreshAction" 
+                    text="Refresh" 
+                    description="Refresh connections" 
+                    icon="AllIcons.Actions.Refresh"/>
+            <separator/>
+            <action id="Redis.Disconnect" 
+                    class="com.redis.plugin.actions.DisconnectAction" 
+                    text="Disconnect" 
+                    description="Disconnect from server" 
+                    icon="AllIcons.Actions.Suspend"/>
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </group>
+        
+        <!-- Context Menu Actions -->
+        <group id="Redis.ConnectionPopup" 
+               text="Redis Connection Actions"
+               popup="true">
+            <action id="Redis.Connect" 
+                    class="com.redis.plugin.actions.ConnectAction" 
+                    text="Connect" 
+                    description="Connect to Redis server" 
+                    icon="AllIcons.Actions.Execute"/>
+            <action id="Redis.EditConnection" 
+                    class="com.redis.plugin.actions.EditConnectionAction" 
+                    text="Edit Connection" 
+                    description="Edit Redis connection" 
+                    icon="AllIcons.Actions.Edit"/>
+            <action id="Redis.DeleteConnection" 
+                    class="com.redis.plugin.actions.DeleteConnectionAction" 
+                    text="Delete Connection" 
+                    description="Delete Redis connection" 
+                    icon="AllIcons.General.Remove"/>
+        </group>
+        
+        <!-- Key Actions -->
+        <group id="Redis.KeyPopup" 
+               text="Redis Key Actions"
+               popup="true">
+            <action id="Redis.ViewKey" 
+                    class="com.redis.plugin.actions.ViewKeyAction" 
+                    text="View Key" 
+                    description="View Redis key value" 
+                    icon="AllIcons.Actions.Preview"/>
+            <action id="Redis.EditKey" 
+                    class="com.redis.plugin.actions.EditKeyAction" 
+                    text="Edit Key" 
+                    description="Edit Redis key value" 
+                    icon="AllIcons.Actions.Edit"/>
+            <action id="Redis.DeleteKey" 
+                    class="com.redis.plugin.actions.DeleteKeyAction" 
+                    text="Delete Key" 
+                    description="Delete Redis key" 
+                    icon="AllIcons.General.Remove"/>
+            <action id="Redis.ExpireKey" 
+                    class="com.redis.plugin.actions.ExpireKeyAction" 
+                    text="Set Expiration" 
+                    description="Set key expiration" 
+                    icon="AllIcons.General.Modified"/>
+        </group>
+    </actions>
+</idea-plugin>
