@@ -12,6 +12,10 @@ import org.jetbrains.annotations.NotNull;
  */
 public class DisconnectAction extends AnAction {
 
+    public DisconnectAction  ()
+    {
+        System.out.println();
+    }
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         Project project = e.getProject();

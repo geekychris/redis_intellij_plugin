@@ -64,7 +64,7 @@
                     icon="AllIcons.Actions.Refresh"/>
             <separator/>
             <action id="Redis.Disconnect" 
-                    class="com.redis.plugin.actions.DisconnectAction" 
+                    class="com.redis.plugin.actions.connection.DisconnectAction"
                     text="Disconnect" 
                     description="Disconnect from server" 
                     icon="AllIcons.Actions.Suspend"/>

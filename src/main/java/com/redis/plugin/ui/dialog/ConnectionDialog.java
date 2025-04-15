@@ -181,8 +181,14 @@ public class ConnectionDialog extends DialogWrapper {
         testButton.setText("Testing...");
         
         try {
+            RedisResult result;
+            try {
+                 result = testService.connect(testConnection);
+            } catch (Exception e) {
+                throw e;
+            }
             // Test connection
-            RedisResult result = testService.connect(testConnection);
+
             
             if (result.isError()) {
                 // Show error message

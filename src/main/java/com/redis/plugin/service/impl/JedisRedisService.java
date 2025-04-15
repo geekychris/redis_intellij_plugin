@@ -12,6 +12,7 @@ import redis.clients.jedis.Protocol;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 import redis.clients.jedis.exceptions.JedisException;
 
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -273,20 +274,59 @@ public class JedisRedisService implements RedisService {
         if (result == null) {
             return RedisResult.success(RedisResultType.NIL, null);
         }
-        
+        Class c = result.getClass();
+        String t = result.getClass().getName();
         if (result instanceof String) {
             return RedisResult.success(RedisResultType.STRING, result);
         } else if (result instanceof Long) {
             return RedisResult.success(RedisResultType.INTEGER, result);
         } else if (result instanceof List) {
-            return RedisResult.success(RedisResultType.ARRAY, result);
+            return RedisResult.success(RedisResultType.ARRAY, getList(result));
         } else if (result instanceof Set) {
-            return RedisResult.success(RedisResultType.SET, result);
+            return RedisResult.success(RedisResultType.SET, getSet(result));
         } else if (result instanceof Map) {
-            return RedisResult.success(RedisResultType.HASH, result);
-        } else {
-            return RedisResult.success(RedisResultType.STRING, result.toString());
+            return RedisResult.success(RedisResultType.HASH, getMap(result));
         }
+        else {
+            return RedisResult.success(RedisResultType.STRING, convertToString(result));
+        }
+    }
+
+    private List<Object> getList (Object obj){
+        ArrayList<Object> result = new ArrayList();
+        List m = (List)obj;
+        for (Object v : m.toArray()) {
+            result.add(convertToString(v));
+        }
+        return result;
+    }
+    private Set<Object> getSet (Object obj){
+        Set<Object> result = new HashSet();
+        Set m = (Set)obj;
+        for (Object v : m.toArray()) {
+            result.add(convertToString(v));
+        }
+        return result;
+    }
+
+    private Map<String, Object> getMap (Object obj){
+        Map<String, Object> result = new HashMap();
+        Map m = (Map)obj;
+        for (Object key : m.keySet()) {
+            Object value = m.get(key);
+            result.put(convertToString(key), convertToString(value));
+        }
+        return result;
+    }
+    private static String convertToString (Object obj) {
+        if (obj instanceof byte[]) {
+            try {
+                return new String((byte[])obj, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                return obj.toString();
+            }
+        }
+        return obj.toString();
     }
 }
 

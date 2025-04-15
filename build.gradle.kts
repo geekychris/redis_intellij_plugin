@@ -23,7 +23,7 @@ intellij {
 
 dependencies {
     // Redis Java client
-    implementation("redis.clients:jedis:5.0.1")
+    implementation("redis.clients:jedis:6.0.0-beta2")
     
     // JSON processing
     implementation("com.google.code.gson:gson:2.10.1")
@@ -110,5 +110,6 @@ tasks {
         // Optional: configure other publishing parameters
         // toolboxEnterprise.set(true) // for Enterprise Marketplace
     }
+
 }
 
