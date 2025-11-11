@@ -39,6 +39,9 @@ public class ConnectionPanel extends JBPanel<ConnectionPanel> {
     private final JPanel detailsPanel;
     private final JBLabel statusLabel;
 
+    private JPanel emptyStatePanel;
+    private JPanel listPanel;
+
     public ConnectionPanel(Project project) {
         super(new BorderLayout());
         this.project = project;
@@ -56,6 +59,13 @@ public class ConnectionPanel extends JBPanel<ConnectionPanel> {
                 .setEditAction(button -> editConnection())
                 .setRemoveAction(button -> removeConnection())
                 .disableUpDownActions();
+        
+        // Create list panel with toolbar
+        listPanel = new JPanel(new BorderLayout());
+        listPanel.add(decorator.createPanel(), BorderLayout.CENTER);
+        
+        // Create empty state panel
+        emptyStatePanel = createEmptyStatePanel();
         
         // Create database selector
         databaseComboBox = new ComboBox<>(new Integer[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15});
@@ -97,8 +107,8 @@ public class ConnectionPanel extends JBPanel<ConnectionPanel> {
         bottomPanel.add(dbPanel, BorderLayout.CENTER);
         bottomPanel.add(statusPanel, BorderLayout.SOUTH);
         
-        // Add components to main panel
-        add(decorator.createPanel(), BorderLayout.CENTER);
+        // Add components to main panel - initially show empty state or list
+        // This will be updated by loadConnections()
         add(bottomPanel, BorderLayout.SOUTH);
         
         // Add action listeners
@@ -130,12 +140,59 @@ public class ConnectionPanel extends JBPanel<ConnectionPanel> {
     }
     
     /**
+     * Create empty state panel shown when no connections exist
+     */
+    private JPanel createEmptyStatePanel() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.insets = JBUI.insets(10);
+        
+        // Icon
+        JBLabel iconLabel = new JBLabel(AllIcons.General.Information);
+        iconLabel.setFont(iconLabel.getFont().deriveFont(48f));
+        panel.add(iconLabel, gbc);
+        
+        // Message
+        gbc.gridy++;
+        JBLabel messageLabel = new JBLabel("No Redis connections configured");
+        messageLabel.setFont(messageLabel.getFont().deriveFont(Font.BOLD, 14f));
+        panel.add(messageLabel, gbc);
+        
+        // Description
+        gbc.gridy++;
+        JBLabel descLabel = new JBLabel("Click the button below to create your first connection");
+        descLabel.setForeground(JBUI.CurrentTheme.ContextHelp.FOREGROUND);
+        panel.add(descLabel, gbc);
+        
+        // Add button
+        gbc.gridy++;
+        gbc.insets = JBUI.insets(20, 10, 10, 10);
+        JButton addButton = new JButton("New Connection", AllIcons.General.Add);
+        addButton.addActionListener(e -> addConnection());
+        panel.add(addButton, gbc);
+        
+        return panel;
+    }
+    
+    /**
      * Load connections from connection manager
      */
     private void loadConnections() {
         listModel.clear();
         for (RedisConnection connection : connectionManager.getConnections()) {
             listModel.addElement(connection);
+        }
+        
+        // Toggle between empty state and list view
+        remove(listPanel);
+        remove(emptyStatePanel);
+        
+        if (listModel.isEmpty()) {
+            add(emptyStatePanel, BorderLayout.CENTER);
+        } else {
+            add(listPanel, BorderLayout.CENTER);
         }
         
         // Select active connection if any
@@ -146,6 +203,8 @@ public class ConnectionPanel extends JBPanel<ConnectionPanel> {
             }
         }
         
+        revalidate();
+        repaint();
         updateConnectionStatus();
     }
     
@@ -157,7 +216,7 @@ public class ConnectionPanel extends JBPanel<ConnectionPanel> {
         if (dialog.showAndGet()) {
             RedisConnection connection = dialog.getConnection();
             connectionManager.addConnection(connection);
-            listModel.addElement(connection);
+            loadConnections();  // Reload to switch from empty state to list view
             connectionList.setSelectedValue(connection, true);
         }
     }
@@ -219,7 +278,7 @@ public class ConnectionPanel extends JBPanel<ConnectionPanel> {
         
         if (result == Messages.YES) {
             connectionManager.removeConnection(selected.getId());
-            listModel.removeElement(selected);
+            loadConnections();  // Reload to switch to empty state if last connection removed
         }
     }
     

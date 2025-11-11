@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("java")
     id("org.jetbrains.kotlin.jvm") version "1.8.20"
-    id("org.jetbrains.intellij") version "1.13.3"
+    id("org.jetbrains.intellij") version "1.17.2"
 }
 
 group = "com.redis.plugin"
@@ -16,7 +16,7 @@ repositories {
 // Configure Gradle IntelliJ Plugin
 // See https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-    version.set("2023.1.3")
+    version.set("2025.2.4")
     type.set("IC") // IntelliJ IDEA Community Edition
     plugins.set(listOf("com.intellij.java"))
 }
@@ -50,6 +50,11 @@ tasks {
     test {
         useJUnitPlatform()
     }
+    
+    // Skip buildSearchableOptions to avoid IndexOutOfBoundsException
+    buildSearchableOptions {
+        enabled = false
+    }
 
     // Prepare platform plugin for running
     runIde {
@@ -59,8 +64,8 @@ tasks {
 
     // Configure plugin metadata
     patchPluginXml {
-        sinceBuild.set("231") // IntelliJ 2023.1
-        untilBuild.set("241.*") // IntelliJ 2024.1
+        sinceBuild.set("252") // IntelliJ 2025.2
+        untilBuild.set("252.*") // IntelliJ 2025.2
         
         // Plugin metadata
         pluginDescription.set("""

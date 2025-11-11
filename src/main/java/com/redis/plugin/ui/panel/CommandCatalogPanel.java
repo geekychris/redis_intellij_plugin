@@ -295,91 +295,99 @@ public class CommandCatalogPanel extends SimpleToolWindowPanel {
     }
     
     private void displayCommandDetails(RedisCommand command) {
-        StringBuilder html = new StringBuilder();
-        html.append("<html><body style='font-family: sans-serif; font-size: 12px;'>");
-        
-        // Command name and syntax
-        html.append("<h2 style='color: #005CC5;'>").append(command.getName().toUpperCase()).append("</h2>");
-        html.append("<div style='background-color: #F0F0F0; padding: 8px; border-radius: 4px; font-family: monospace;'>");
-        html.append(command.getSyntax().replace("<", "&lt;").replace(">", "&gt;"));
-        html.append("</div>");
-        
-        // Description
-        html.append("<h3>Description</h3>");
-        html.append("<p>").append(command.getDescription()).append("</p>");
-        
-        // Parameters
-        if (!command.getParameters().isEmpty()) {
-            html.append("<h3>Parameters</h3>");
-            html.append("<ul>");
-            for (String param : command.getParameters()) {
-                html.append("<li>").append(param).append("</li>");
-            }
-            html.append("</ul>");
-        }
-        
-        // Examples
-        if (!command.getExamples().isEmpty()) {
-            html.append("<h3>Examples</h3>");
+        try {
+            StringBuilder html = new StringBuilder();
+            html.append("<html><body style='font-family: sans-serif; font-size: 12px;'>");
+            
+            // Command name and syntax
+            html.append("<h2 style='color: #005CC5;'>").append(command.getName().toUpperCase()).append("</h2>");
             html.append("<div style='background-color: #F0F0F0; padding: 8px; border-radius: 4px; font-family: monospace;'>");
-            for (String example : command.getExamples()) {
-                html.append(example.replace("<", "&lt;").replace(">", "&gt;")).append("<br/>");
-            }
+            html.append(command.getSyntax().replace("<", "&lt;").replace(">", "&gt;"));
             html.append("</div>");
-        }
-        
-        // Return value
-        if (!command.getReturnValues().isEmpty()) {
-            html.append("<h3>Return Value</h3>");
-            html.append("<ul>");
-            for (String returnValue : command.getReturnValues()) {
-                html.append("<li>").append(returnValue).append("</li>");
+            
+            // Description
+            html.append("<h3>Description</h3>");
+            html.append("<p>").append(command.getDescription()).append("</p>");
+            
+            // Parameters
+            if (!command.getParameters().isEmpty()) {
+                html.append("<h3>Parameters</h3>");
+                html.append("<ul>");
+                for (String param : command.getParameters()) {
+                    html.append("<li>").append(param).append("</li>");
+                }
+                html.append("</ul>");
             }
-            html.append("</ul>");
+            
+            // Examples
+            if (!command.getExamples().isEmpty()) {
+                html.append("<h3>Examples</h3>");
+                html.append("<div style='background-color: #F0F0F0; padding: 8px; border-radius: 4px; font-family: monospace;'>");
+                for (String example : command.getExamples()) {
+                    html.append(example.replace("<", "&lt;").replace(">", "&gt;")).append("<br/>");
+                }
+                html.append("</div>");
+            }
+            
+            // Return value
+            if (!command.getReturnValues().isEmpty()) {
+                html.append("<h3>Return Value</h3>");
+                html.append("<ul>");
+                for (String returnValue : command.getReturnValues()) {
+                    html.append("<li>").append(returnValue).append("</li>");
+                }
+                html.append("</ul>");
+            }
+            
+            // Complexity
+            if (command.getComplexity() != null) {
+                html.append("<h3>Time Complexity</h3>");
+                html.append("<p>").append(command.getComplexity().toString()).append("</p>");
+            }
+            
+            // Since version
+            if (command.getSince() != null && !command.getSince().isEmpty()) {
+                html.append("<p style='color: #666666;'>Since: Redis ").append(command.getSince()).append("</p>");
+            }
+            
+            html.append("</body></html>");
+            
+            detailsPane.setText(html.toString());
+            detailsPane.setCaretPosition(0);
+        } catch (Exception e) {
+            // Ignore initialization errors with JEditorPane
         }
-        
-        // Complexity
-        if (command.getComplexity() != null) {
-            html.append("<h3>Time Complexity</h3>");
-            html.append("<p>").append(command.getComplexity().toString()).append("</p>");
-        }
-        
-        // Since version
-        if (command.getSince() != null && !command.getSince().isEmpty()) {
-            html.append("<p style='color: #666666;'>Since: Redis ").append(command.getSince()).append("</p>");
-        }
-        
-        html.append("</body></html>");
-        
-        detailsPane.setText(html.toString());
-        detailsPane.setCaretPosition(0);
     }
     
     private void displayCategoryDetails(RedisCommandCategory category) {
-        StringBuilder html = new StringBuilder();
-        html.append("<html><body style='font-family: sans-serif; font-size: 12px;'>");
-        
-        // Category name
-        html.append("<h2 style='color: #005CC5;'>").append(category.getName()).append("</h2>");
-        
-        // Description
-        if (category.getDescription() != null && !category.getDescription().isEmpty()) {
-            html.append("<p>").append(category.getDescription()).append("</p>");
+        try {
+            StringBuilder html = new StringBuilder();
+            html.append("<html><body style='font-family: sans-serif; font-size: 12px;'>");
+            
+            // Category name
+            html.append("<h2 style='color: #005CC5;'>").append(category.getName()).append("</h2>");
+            
+            // Description
+            if (category.getDescription() != null && !category.getDescription().isEmpty()) {
+                html.append("<p>").append(category.getDescription()).append("</p>");
+            }
+            
+            // Commands in this category
+            html.append("<h3>Commands</h3>");
+            html.append("<ul>");
+            for (RedisCommand command : category.getCommands()) {
+                html.append("<li><b>").append(command.getName().toUpperCase()).append("</b> - ");
+                html.append(command.getDescription()).append("</li>");
+            }
+            html.append("</ul>");
+            
+            html.append("</body></html>");
+            
+            detailsPane.setText(html.toString());
+            detailsPane.setCaretPosition(0);
+        } catch (Exception e) {
+            // Ignore initialization errors with JEditorPane
         }
-        
-        // Commands in this category
-        html.append("<h3>Commands</h3>");
-        html.append("<ul>");
-        for (RedisCommand command : category.getCommands()) {
-            html.append("<li><b>").append(command.getName().toUpperCase()).append("</b> - ");
-            html.append(command.getDescription()).append("</li>");
-        }
-        html.append("</ul>");
-        
-        html.append("</body></html>");
-        
-        detailsPane.setText(html.toString());
-        detailsPane.setCaretPosition(0);
     }
     
     private void handleCommandSelection() {

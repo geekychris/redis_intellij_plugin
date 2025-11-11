@@ -25,6 +25,17 @@ public class ExpireKeyAction extends AnAction {
 
     private final String key;
     
+    /**
+     * Default constructor for plugin.xml registration
+     */
+    public ExpireKeyAction() {
+        this.key = null;
+    }
+    
+    /**
+     * Constructor with specific key
+     * @param key the key to set expiration for
+     */
     public ExpireKeyAction(String key) {
         super("Set Expiration", "Set expiration time for Redis key", null);
         this.key = key;
@@ -33,7 +44,16 @@ public class ExpireKeyAction extends AnAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         Project project = e.getProject();
-        if (project == null || key == null) return;
+        if (project == null) return;
+        
+        if (key == null) {
+            Messages.showWarningDialog(
+                    project,
+                    "Please select a key from the Redis Client tool window.",
+                    "Set Expiration"
+            );
+            return;
+        }
         
         RedisConnectionManager connectionManager = ApplicationManager.getApplication()
                 .getService(RedisConnectionManager.class);

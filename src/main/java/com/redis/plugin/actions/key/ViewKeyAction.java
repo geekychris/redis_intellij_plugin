@@ -16,6 +16,17 @@ public class ViewKeyAction extends AnAction {
 
     private final String key;
     
+    /**
+     * Default constructor for plugin.xml registration
+     */
+    public ViewKeyAction() {
+        this.key = null;
+    }
+    
+    /**
+     * Constructor with specific key
+     * @param key the key to view
+     */
     public ViewKeyAction(String key) {
         super("View Key", "View Redis key value", null);
         this.key = key;
@@ -24,7 +35,16 @@ public class ViewKeyAction extends AnAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         Project project = e.getProject();
-        if (project == null || key == null) return;
+        if (project == null) return;
+        
+        if (key == null) {
+            Messages.showWarningDialog(
+                    project,
+                    "Please select a key from the Redis Client tool window.",
+                    "View Key"
+            );
+            return;
+        }
         
         RedisConnectionManager connectionManager = ApplicationManager.getApplication()
                 .getService(RedisConnectionManager.class);

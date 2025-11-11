@@ -24,6 +24,17 @@ public class EditKeyAction extends AnAction {
 
     private final String key;
     
+    /**
+     * Default constructor for plugin.xml registration
+     */
+    public EditKeyAction() {
+        this.key = null;
+    }
+    
+    /**
+     * Constructor with specific key
+     * @param key the key to edit
+     */
     public EditKeyAction(String key) {
         super("Edit Key", "Edit Redis key value", null);
         this.key = key;
@@ -32,7 +43,16 @@ public class EditKeyAction extends AnAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         Project project = e.getProject();
-        if (project == null || key == null) return;
+        if (project == null) return;
+        
+        if (key == null) {
+            Messages.showWarningDialog(
+                    project,
+                    "Please select a key from the Redis Client tool window.",
+                    "Edit Key"
+            );
+            return;
+        }
         
         RedisConnectionManager connectionManager = ApplicationManager.getApplication()
                 .getService(RedisConnectionManager.class);

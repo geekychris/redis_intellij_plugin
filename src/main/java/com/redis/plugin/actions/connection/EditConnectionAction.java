@@ -19,6 +19,17 @@ public class EditConnectionAction extends AnAction {
 
     private final RedisConnection connection;
     
+    /**
+     * Default constructor for plugin.xml registration
+     */
+    public EditConnectionAction() {
+        this.connection = null;
+    }
+    
+    /**
+     * Constructor with specific connection
+     * @param connection the connection to use
+     */
     public EditConnectionAction(RedisConnection connection) {
         super("Edit Connection", "Edit Redis connection", null);
         this.connection = connection;
@@ -27,7 +38,16 @@ public class EditConnectionAction extends AnAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         Project project = e.getProject();
-        if (project == null || connection == null) return;
+        if (project == null) return;
+        
+        if (connection == null) {
+            Messages.showWarningDialog(
+                    project,
+                    "Please select a connection from the Redis Client tool window.",
+                    "Edit Connection"
+            );
+            return;
+        }
         
         RedisConnectionManager connectionManager = ApplicationManager.getApplication()
                 .getService(RedisConnectionManager.class);

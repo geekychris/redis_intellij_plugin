@@ -18,6 +18,17 @@ public class DeleteConnectionAction extends AnAction {
 
     private final RedisConnection connection;
     
+    /**
+     * Default constructor for plugin.xml registration
+     */
+    public DeleteConnectionAction() {
+        this.connection = null;
+    }
+    
+    /**
+     * Constructor with specific connection
+     * @param connection the connection to use
+     */
     public DeleteConnectionAction(RedisConnection connection) {
         super("Delete Connection", "Delete Redis connection", null);
         this.connection = connection;
@@ -26,7 +37,16 @@ public class DeleteConnectionAction extends AnAction {
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         Project project = e.getProject();
-        if (project == null || connection == null) return;
+        if (project == null) return;
+        
+        if (connection == null) {
+            Messages.showWarningDialog(
+                    project,
+                    "Please select a connection from the Redis Client tool window.",
+                    "Delete Connection"
+            );
+            return;
+        }
         
         RedisConnectionManager connectionManager = ApplicationManager.getApplication()
                 .getService(RedisConnectionManager.class);
