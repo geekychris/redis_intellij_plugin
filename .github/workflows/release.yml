@@ -92,14 +92,30 @@ jobs:
           retention-days: 90
           
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          name: Release ${{ steps.version.outputs.VERSION }}
-          body_path: CHANGELOG.txt
-          files: ${{ steps.plugin_file.outputs.file }}
-          draft: false
-          prerelease: false
-          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PLUGIN_FILE="${{ steps.plugin_file.outputs.file }}"
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          TAG="v${VERSION}"
+          
+          echo "Creating release ${TAG}"
+          echo "Uploading file: ${PLUGIN_FILE}"
+          
+          # Delete release if it exists (for re-runs)
+          if gh release view "${TAG}" &>/dev/null; then
+            echo "Release ${TAG} already exists, deleting it"
+            gh release delete "${TAG}" --yes --cleanup-tag
+          fi
+          
+          # Create release and upload asset
+          gh release create "${TAG}" \
+            --title "Release ${VERSION}" \
+            --notes-file CHANGELOG.txt \
+            "${PLUGIN_FILE}"
+            
+          echo "Release created successfully with asset: ${PLUGIN_FILE}"
           
       - name: Publish to JetBrains Marketplace
         if: false  # Enable this step by setting to true after configuring PUBLISH_TOKEN secret
