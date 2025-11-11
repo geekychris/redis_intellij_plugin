@@ -1,20 +1,28 @@
 #!/bin/bash
 
 # Release script for Redis IntelliJ Plugin
-# Usage: ./release.sh <version>
+# Usage: ./release.sh <version> [--push]
 # Example: ./release.sh 1.0.1
+# Example: ./release.sh 1.0.1 --push  (automatically pushes to GitHub)
 
 set -e
 
 if [ -z "$1" ]; then
     echo "Error: Version number required"
-    echo "Usage: ./release.sh <version>"
+    echo "Usage: ./release.sh <version> [--push]"
     echo "Example: ./release.sh 1.0.1"
+    echo "Example: ./release.sh 1.0.1 --push  (auto-push to GitHub)"
     exit 1
 fi
 
 VERSION=$1
 TAG="v${VERSION}"
+AUTO_PUSH=false
+
+# Check for --push flag
+if [ "$2" = "--push" ]; then
+    AUTO_PUSH=true
+fi
 
 echo "=========================================="
 echo "Redis IntelliJ Plugin Release Script"
@@ -59,18 +67,53 @@ echo "=========================================="
 echo "Release ${VERSION} prepared!"
 echo "=========================================="
 echo ""
-echo "Next steps:"
-echo "1. Review the changes: git show HEAD"
-echo "2. Push to remote: git push origin main && git push origin ${TAG}"
-echo ""
-echo "The GitHub Actions workflow will automatically:"
-echo "  - Build the plugin"
-echo "  - Run tests"
-echo "  - Create a GitHub release"
-echo "  - Upload the plugin artifact"
-echo "  - (Optional) Publish to JetBrains Marketplace if PUBLISH_TOKEN is set"
-echo ""
-echo "To undo this release (before pushing):"
-echo "  git reset --hard HEAD~1"
-echo "  git tag -d ${TAG}"
-echo ""
+
+if [ "$AUTO_PUSH" = true ]; then
+    echo "Pushing to GitHub..."
+    git push origin main
+    git push origin ${TAG}
+    echo ""
+    echo "✅ Release ${VERSION} pushed to GitHub!"
+    echo ""
+    echo "Monitor the release workflow:"
+    echo "  https://github.com/$(git remote get-url origin | sed 's/.*github.com[:/]\(.*\)\.git/\1/')/actions"
+    echo ""
+    echo "The GitHub Actions workflow will automatically:"
+    echo "  - Build the plugin"
+    echo "  - Run tests"
+    echo "  - Create a GitHub release"
+    echo "  - Upload the plugin artifact"
+    echo "  - (Optional) Publish to JetBrains Marketplace if PUBLISH_TOKEN is set"
+    echo ""
+else
+    echo "⚠️  IMPORTANT: Release NOT yet pushed to GitHub!"
+    echo "⚠️  The build workflow has NOT been triggered yet."
+    echo ""
+    echo "Next steps:"
+    echo "1. Review the changes:"
+    echo "     git show HEAD"
+    echo ""
+    echo "2. Push to GitHub to trigger the release workflow:"
+    echo "     git push origin main && git push origin ${TAG}"
+    echo ""
+    echo "   This will trigger the GitHub Actions workflow that will:"
+    echo "     • Build the plugin"
+    echo "     • Run tests"
+    echo "     • Create a GitHub release"
+    echo "     • Upload the plugin artifact"
+    echo "     • (Optional) Publish to JetBrains Marketplace if PUBLISH_TOKEN is set"
+    echo ""
+    echo "3. Monitor the workflow:"
+    echo "     GitHub → Actions tab → 'Release' workflow"
+    echo ""
+    echo "=========================================="
+    echo "Tips:"
+    echo "=========================================="
+    echo "• To push automatically next time:"
+    echo "    ./release.sh ${VERSION} --push"
+    echo ""
+    echo "• To undo this release (before pushing):"
+    echo "    git reset --hard HEAD~1"
+    echo "    git tag -d ${TAG}"
+    echo ""
+fi

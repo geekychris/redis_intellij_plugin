@@ -2,6 +2,35 @@
 
 This document describes the release workflow for the Redis IntelliJ Plugin.
 
+## Quick Reference
+
+**To create a release (manual push):**
+```bash
+# 1. Prepare and create release tag
+./release.sh 1.0.1  # Use version WITHOUT "v" prefix!
+
+# 2. Push BOTH commit and tag to trigger workflow
+git push origin main && git push origin v1.0.1
+
+# 3. Monitor the Release workflow in Actions tab
+# 4. Download plugin from Releases section when complete
+```
+
+**To create a release (auto-push):**
+```bash
+# One command does everything - creates tag AND pushes
+./release.sh 1.0.1 --push
+
+# Then monitor the Release workflow in Actions tab
+```
+
+**Key Points:**
+- ✅ Use `./release.sh 1.0.1` (script adds "v" automatically)
+- ❌ Don't use `./release.sh v1.0.1` (creates wrong tag `vv1.0.1`)
+- ✅ Must push BOTH main branch AND the tag
+- ✅ Check "Release" workflow in Actions (not "Build")
+- ✅ Plugin appears in Releases section (not just Actions artifacts)
+
 ## Overview
 
 The project uses GitHub Actions for automated builds and releases. The workflow is triggered by pushing version tags to the repository.
@@ -43,21 +72,46 @@ Obtain this from your [JetBrains Account](https://plugins.jetbrains.com/author/m
    ./release.sh 1.0.1
    ```
    
+   **IMPORTANT:** Use the version number WITHOUT the "v" prefix (e.g., `1.0.1`, NOT `v1.0.1`)
+   
    This script will:
    - Update the version in `build.gradle.kts`
    - Commit the version change
-   - Create a git tag (e.g., `v1.0.1`)
-   - Provide instructions for pushing
+   - Create a git tag with "v" prefix (e.g., `v1.0.1`)
+   - Display next steps
+   
+   **Optional:** Add `--push` flag to automatically push to GitHub:
+   ```bash
+   ./release.sh 1.0.1 --push
+   ```
+   If you use `--push`, skip step 3 below.
 
-3. **Push the release**
+3. **Push BOTH the commit AND the tag** (if you didn't use `--push`)
    ```bash
    git push origin main && git push origin v1.0.1
    ```
+   
+   **CRITICAL:** You must push BOTH:
+   - `git push origin main` - Pushes the version commit
+   - `git push origin v1.0.1` - Pushes the tag that triggers the release workflow
+   
+   The tag push is what triggers the GitHub Actions release workflow!
 
 4. **Monitor the workflow**
    - Go to your GitHub repository → `Actions` tab
-   - Watch the "Release" workflow execute
-   - Once complete, check the `Releases` section for your new release
+   - In the left sidebar, click **"Release"** (not "Build")
+   - Watch the release workflow execute
+   - The workflow will:
+     - Build and test the plugin
+     - Create a GitHub Release
+     - Attach the plugin ZIP file to the release
+
+5. **Verify the release**
+   - Go to your repository main page
+   - Click **"Releases"** in the right sidebar
+   - Find your release (e.g., "Release 1.0.1")
+   - Verify the plugin ZIP file appears under **"Assets"**
+   - Users can now download the plugin from this page!
 
 ### Manual Release
 
@@ -110,13 +164,54 @@ Follow [Semantic Versioning](https://semver.org/):
 
 ## Troubleshooting
 
+### Release workflow doesn't run
+
+**Problem:** You don't see the Release workflow in the Actions tab.
+
+**Solution:** Make sure you pushed the tag! The Release workflow only triggers when you push a tag starting with `v`:
+```bash
+git push origin v1.0.1
+```
+
+Check if the tag exists on GitHub:
+```bash
+git ls-remote --tags origin
+```
+
+### Release created but no plugin ZIP in Assets
+
+**Problem:** The GitHub Release exists but only shows "Source code" in Assets.
+
+**Solution:** 
+1. Go to Actions → Click on the Release workflow run
+2. Check the "Create GitHub Release" step for errors
+3. The workflow may have failed before uploading the asset
+
+### Wrong tag name (e.g., vv1.0.1 instead of v1.0.1)
+
+**Problem:** Used `./release.sh v1.0.1` instead of `./release.sh 1.0.1`
+
+**Solution:** The script adds the "v" prefix automatically. Always use:
+```bash
+./release.sh 1.0.1  # Correct - creates tag v1.0.1
+./release.sh v1.0.1 # Wrong - creates tag vv1.0.1
+```
+
+To fix incorrect tags:
+```bash
+git tag -d vv1.0.1              # Delete locally
+git push origin :refs/tags/vv1.0.1  # Delete on GitHub
+git reset --hard origin/main    # Reset commits
+./release.sh 1.0.1              # Try again correctly
+```
+
 ### Release workflow fails during signing
 
-If you haven't set up signing secrets, the signing step will be skipped automatically. The plugin will still be built and released, just unsigned.
+If you haven't set up signing secrets, the signing step is disabled by default (`if: false`). The plugin will still be built and released, just unsigned.
 
 ### Release workflow fails during publishing
 
-If you haven't set up the `PUBLISH_TOKEN` secret, the publishing step will be skipped. The plugin will still be released on GitHub.
+If you haven't set up the `PUBLISH_TOKEN` secret, the publishing step is disabled by default (`if: false`). The plugin will still be released on GitHub.
 
 ### Need to delete a release
 
