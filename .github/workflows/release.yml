@@ -50,6 +50,13 @@ jobs:
           echo ""
           echo "Plugin artifact:"
           find build/distributions -name "*.zip" -exec ls -lh {} \;
+          
+      - name: Get plugin filename
+        id: plugin_file
+        run: |
+          PLUGIN_FILE=$(find build/distributions -name "*.zip" -type f | head -n 1)
+          echo "file=${PLUGIN_FILE}" >> $GITHUB_OUTPUT
+          echo "Found plugin file: ${PLUGIN_FILE}"
         
       - name: Sign plugin
         if: false  # Enable this step by setting to true after configuring signing secrets
@@ -77,17 +84,22 @@ jobs:
           echo "$CHANGELOG" > CHANGELOG.txt
           echo "Generated changelog for release"
           
+      - name: Upload plugin artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin-distribution
+          path: ${{ steps.plugin_file.outputs.file }}
+          retention-days: 90
+          
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           name: Release ${{ steps.version.outputs.VERSION }}
           body_path: CHANGELOG.txt
-          files: build/distributions/*.zip
+          files: ${{ steps.plugin_file.outputs.file }}
           draft: false
           prerelease: false
           fail_on_unmatched_files: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
       - name: Publish to JetBrains Marketplace
         if: false  # Enable this step by setting to true after configuring PUBLISH_TOKEN secret
