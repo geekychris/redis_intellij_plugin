@@ -82,7 +82,7 @@ If you prefer not to use the script:
 When you push a version tag (e.g., `v1.0.1`), the GitHub Actions workflow will:
 
 1. ✅ Checkout the code
-2. ✅ Setup Java (Amazon Corretto 23)
+2. ✅ Setup Java (Amazon Corretto 21)
 3. ✅ Run all tests
 4. ✅ Build the plugin
 5. ✅ Verify the plugin structure
