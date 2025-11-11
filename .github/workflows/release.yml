@@ -43,6 +43,14 @@ jobs:
       - name: Verify plugin
         run: ./gradlew verifyPlugin
         
+      - name: List build artifacts
+        run: |
+          echo "Contents of build/distributions:"
+          ls -lah build/distributions/
+          echo ""
+          echo "Plugin artifact:"
+          find build/distributions -name "*.zip" -exec ls -lh {} \;
+        
       - name: Sign plugin
         if: false  # Enable this step by setting to true after configuring signing secrets
         env:
@@ -70,14 +78,14 @@ jobs:
           echo "Generated changelog for release"
           
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           name: Release ${{ steps.version.outputs.VERSION }}
           body_path: CHANGELOG.txt
-          files: |
-            build/distributions/*.zip
+          files: build/distributions/*.zip
           draft: false
           prerelease: false
+          fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
