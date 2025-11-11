@@ -17,9 +17,11 @@ import com.redis.plugin.service.RedisConnectionManager;
 import com.redis.plugin.ui.panel.CommandCatalogPanel;
 import com.redis.plugin.ui.panel.CommandPanel;
 import com.redis.plugin.ui.panel.ConnectionPanel;
+import com.redis.plugin.ui.panel.ConsolePanel;
 import com.redis.plugin.ui.panel.ResultPanel;
 
 import javax.swing.*;
+import java.awt.*;
 
 /**
  * Main tool window for Redis client
@@ -30,6 +32,7 @@ public class RedisToolWindow implements Disposable {
     private ConnectionPanel connectionPanel;
     private CommandPanel commandPanel;
     private ResultPanel resultPanel;
+    private ConsolePanel consolePanel;
     private CommandCatalogPanel commandCatalogPanel;
     private final RedisConnectionManager connectionManager;
 
@@ -50,12 +53,22 @@ public class RedisToolWindow implements Disposable {
         connectionPanel = new ConnectionPanel(project);
         commandPanel = new CommandPanel(project);
         resultPanel = new ResultPanel(project);
+        consolePanel = new ConsolePanel(project);
         commandCatalogPanel = new CommandCatalogPanel(project);
-        
-        // Command and result panel in vertical split
+
+        // Command panel at the top
+        JPanel commandArea = new JPanel(new BorderLayout());
+        commandArea.add(commandPanel, BorderLayout.CENTER);
+
+        // Results and console in tabs
+        JBTabbedPane resultTabs = new JBTabbedPane();
+        resultTabs.addTab("Results", resultPanel);
+        resultTabs.addTab("Console", consolePanel);
+
+        // Command area and results/console in vertical split
         JBSplitter commandResultSplitter = new JBSplitter(true, 0.3f);
-        commandResultSplitter.setFirstComponent(commandPanel);
-        commandResultSplitter.setSecondComponent(resultPanel);
+        commandResultSplitter.setFirstComponent(commandArea);
+        commandResultSplitter.setSecondComponent(resultTabs);
         
         // Connection panel and catalog in tabs
         JBTabbedPane leftTabs = new JBTabbedPane();
@@ -93,6 +106,7 @@ public class RedisToolWindow implements Disposable {
                     // Update UI elements
                     commandPanel.setEnabled(true);
                     resultPanel.setEnabled(true);
+                    consolePanel.setEnabled(true);
                 }
             } else {
                 // Disconnect from Redis
@@ -101,6 +115,7 @@ public class RedisToolWindow implements Disposable {
                 // Update UI elements
                 commandPanel.setEnabled(false);
                 resultPanel.setEnabled(false);
+                consolePanel.setEnabled(false);
                 resultPanel.clear();
             }
         });
@@ -109,11 +124,21 @@ public class RedisToolWindow implements Disposable {
         commandPanel.addCommandListener(command -> {
             if (connectionManager.isConnected()) {
                 RedisResult result = connectionManager.getRedisService().execute(command);
+
+                // Update both result panel and console
                 resultPanel.displayResult(result);
+                consolePanel.addCommandExecution(command, result);
+
+                // Add to command panel history
                 commandPanel.addToHistory(command);
             }
         });
-        
+
+        // Console panel sends clicked commands back to command panel
+        consolePanel.addCommandClickListener(command -> {
+            commandPanel.setCommand(command);
+        });
+
         // Command catalog panel sends commands to command panel
         commandCatalogPanel.addCommandSelectionListener(command -> {
             commandPanel.setCommand(command.getSyntax());

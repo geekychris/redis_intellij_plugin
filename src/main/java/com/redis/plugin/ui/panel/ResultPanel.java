@@ -148,6 +148,11 @@ public class ResultPanel extends SimpleToolWindowPanel {
             public void update(@NotNull AnActionEvent e) {
                 e.getPresentation().setEnabled(currentResult != null);
             }
+            
+            @Override
+            public @NotNull ActionUpdateThread getActionUpdateThread() {
+                return ActionUpdateThread.EDT;
+            }
         };
         
         // Export action
@@ -161,6 +166,11 @@ public class ResultPanel extends SimpleToolWindowPanel {
             public void update(@NotNull AnActionEvent e) {
                 e.getPresentation().setEnabled(currentResult != null);
             }
+            
+            @Override
+            public @NotNull ActionUpdateThread getActionUpdateThread() {
+                return ActionUpdateThread.EDT;
+            }
         };
         
         // Clear action
@@ -168,6 +178,11 @@ public class ResultPanel extends SimpleToolWindowPanel {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
                 clear();
+            }
+            
+            @Override
+            public @NotNull ActionUpdateThread getActionUpdateThread() {
+                return ActionUpdateThread.EDT;
             }
         };
         

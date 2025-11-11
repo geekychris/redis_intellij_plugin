@@ -16,7 +16,7 @@ repositories {
 // Configure Gradle IntelliJ Plugin
 // See https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-    version.set("2024.2.4")
+    version.set("2024.1.7")
     type.set("IC") // IntelliJ IDEA Community Edition
     plugins.set(listOf("com.intellij.java"))
 }
@@ -64,8 +64,8 @@ tasks {
 
     // Configure plugin metadata
     patchPluginXml {
-        sinceBuild.set("242") // IntelliJ 2024.2
-        untilBuild.set("242.*") // IntelliJ 2024.2
+        sinceBuild.set("241") // IntelliJ 2024.1
+        untilBuild.set("242.*") // Up to 2024.2
         
         // Plugin metadata
         pluginDescription.set("""

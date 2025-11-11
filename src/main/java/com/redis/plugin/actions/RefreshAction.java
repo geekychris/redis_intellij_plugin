@@ -1,5 +1,6 @@
 package com.redis.plugin.actions;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
@@ -30,5 +31,10 @@ public class RefreshAction extends AnAction {
     public void update(@NotNull AnActionEvent e) {
         // Always enabled if project is available
         e.getPresentation().setEnabled(e.getProject() != null);
+    }
+    
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.BGT;
     }
 }

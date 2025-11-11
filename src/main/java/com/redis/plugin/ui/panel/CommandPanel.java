@@ -4,21 +4,18 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.ui.DocumentAdapter;
-import com.intellij.ui.EditorTextField;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.util.ui.JBUI;
+import com.redis.plugin.service.RedisHistoryService;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -31,13 +28,13 @@ public class CommandPanel extends JBPanel<CommandPanel> {
     private final JButton executeButton;
     private final ComboBox<String> historyComboBox;
     private final DefaultComboBoxModel<String> historyModel;
-    private final LinkedList<String> commandHistory;
+    private final RedisHistoryService historyService;
     private final List<Consumer<String>> commandListeners;
 
     public CommandPanel(Project project) {
         super(new BorderLayout());
         this.project = project;
-        this.commandHistory = new LinkedList<>();
+        this.historyService = project.getService(RedisHistoryService.class);
         this.commandListeners = new ArrayList<>();
 
         // Command input
@@ -103,6 +100,9 @@ public class CommandPanel extends JBPanel<CommandPanel> {
             }
         });
 
+        // Load initial history
+        updateHistoryDropdown();
+
         // Initial state
         setEnabled(false);
     }
@@ -128,18 +128,8 @@ public class CommandPanel extends JBPanel<CommandPanel> {
      * @param command the command to add
      */
     public void addToHistory(String command) {
-        // Don't add duplicates to history
-        if (commandHistory.contains(command)) {
-            commandHistory.remove(command);
-        }
-
-        // Add to the front of the list
-        commandHistory.addFirst(command);
-
-        // Limit history size to 20 items
-        if (commandHistory.size() > 20) {
-            commandHistory.removeLast();
-        }
+        // Add to persistent history service
+        historyService.addCommand(command);
 
         // Update history dropdown
         updateHistoryDropdown();
@@ -150,8 +140,12 @@ public class CommandPanel extends JBPanel<CommandPanel> {
      */
     private void updateHistoryDropdown() {
         historyModel.removeAllElements();
-        for (String cmd : commandHistory) {
-            historyModel.addElement(cmd);
+        List<String> history = historyService.getHistory();
+
+        // Add most recent 20 commands to dropdown (for UI performance)
+        int maxDropdownItems = Math.min(20, history.size());
+        for (int i = 0; i < maxDropdownItems; i++) {
+            historyModel.addElement(history.get(i));
         }
     }
 

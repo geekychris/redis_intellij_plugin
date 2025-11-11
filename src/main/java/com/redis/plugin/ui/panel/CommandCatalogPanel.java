@@ -128,6 +128,11 @@ public class CommandCatalogPanel extends SimpleToolWindowPanel {
                 TreePath path = commandTree.getSelectionPath();
                 e.getPresentation().setEnabled(path != null && isCommandNode(path.getLastPathComponent()));
             }
+            
+            @Override
+            public @NotNull ActionUpdateThread getActionUpdateThread() {
+                return ActionUpdateThread.EDT;
+            }
         };
         
         // Copy action
@@ -142,6 +147,11 @@ public class CommandCatalogPanel extends SimpleToolWindowPanel {
                 TreePath path = commandTree.getSelectionPath();
                 e.getPresentation().setEnabled(path != null && isCommandNode(path.getLastPathComponent()));
             }
+            
+            @Override
+            public @NotNull ActionUpdateThread getActionUpdateThread() {
+                return ActionUpdateThread.EDT;
+            }
         };
         
         // Expand all action
@@ -150,6 +160,11 @@ public class CommandCatalogPanel extends SimpleToolWindowPanel {
             public void actionPerformed(@NotNull AnActionEvent e) {
                 TreeUtil.expandAll(commandTree);
             }
+            
+            @Override
+            public @NotNull ActionUpdateThread getActionUpdateThread() {
+                return ActionUpdateThread.EDT;
+            }
         };
         
         // Collapse all action
@@ -157,6 +172,11 @@ public class CommandCatalogPanel extends SimpleToolWindowPanel {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
                 TreeUtil.collapseAll(commandTree, 1);
+            }
+            
+            @Override
+            public @NotNull ActionUpdateThread getActionUpdateThread() {
+                return ActionUpdateThread.EDT;
             }
         };
         

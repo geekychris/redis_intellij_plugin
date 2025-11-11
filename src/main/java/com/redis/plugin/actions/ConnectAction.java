@@ -1,5 +1,6 @@
 package com.redis.plugin.actions;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
@@ -90,5 +91,10 @@ public class ConnectAction extends AnAction {
                 .getService(RedisConnectionManager.class);
         
         e.getPresentation().setEnabled(!connectionManager.isConnected());
+    }
+    
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.BGT;
     }
 }

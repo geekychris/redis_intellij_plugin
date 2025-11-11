@@ -8,6 +8,7 @@ A comprehensive Redis client plugin for IntelliJ IDEA that allows you to connect
 
 - **Redis Connection Management**: Create, edit, save and manage multiple Redis server connections
 - **Command Execution**: Run Redis commands with syntax highlighting and command history
+- **Console Interface**: Interactive console showing command history with clickable commands for re-execution
 - **Data Browser**: View and edit Redis data with specialized formatters for different data types
 - **Command Catalog**: Browse the complete Redis command set with documentation
   - Detailed command syntax
@@ -18,6 +19,7 @@ A comprehensive Redis client plugin for IntelliJ IDEA that allows you to connect
   - Command examples
 - **Command Categories**: Commands organized by data type (Strings, Lists, Hashes, Sets, Sorted Sets, etc.)
 - **Command Search**: Quickly find commands by name or description
+- **Persistent Command History**: Command history that persists across IDE sessions
 - **Copy/Export**: Copy results to clipboard or export to file
 
 ![img.png](img.png)
@@ -87,7 +89,27 @@ cd redis-intellij-plugin
 1. After connecting to a Redis server, use the Command panel to enter Redis commands
 2. Type a command (e.g., `SET mykey "Hello World"`)
 3. Press `Ctrl+Enter` or click the `Execute` button
-4. View the results in the Results panel
+4. View the results in the Results panel or Console panel
+
+### Using the Console
+
+The Console panel provides a terminal-like interface showing the history of executed commands and responses:
+
+1. Switch to the Console tab in the results area
+2. View the chronological log of commands and their responses
+3. **Click on any previous command** to load it back into the command input field for re-execution
+4. Commands are displayed with timestamps and clickable formatting
+5. Export console history to a file using the toolbar buttons
+6. Clear console history when needed
+
+#### Console Features:
+
+- **Clickable Commands**: Click on any `redis>` command line to re-execute it
+- **Formatted Responses**: Results are formatted similar to redis-cli output
+- **Error Highlighting**: Errors are displayed in red for easy identification
+- **Execution Timing**: Shows execution time for each command
+- **Persistent History**: Console history is preserved across IDE sessions
+- **Export Functionality**: Export console log to text file
 
 ### Browsing Commands
 

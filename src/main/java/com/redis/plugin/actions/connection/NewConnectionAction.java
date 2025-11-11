@@ -1,5 +1,6 @@
 package com.redis.plugin.actions.connection;
 
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
@@ -20,6 +21,11 @@ public class NewConnectionAction extends AnAction {
         if (dialog.showAndGet()) {
             // Handle new connection
         }
+    }
+    
+    @Override
+    public @NotNull ActionUpdateThread getActionUpdateThread() {
+        return ActionUpdateThread.BGT;
     }
 }
 
