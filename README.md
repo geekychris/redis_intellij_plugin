@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.png" alt="Redis Intellij Plugin logo" width="180">
+</p>
+
 # Redis Client Plugin for IntelliJ IDEA
 
 A comprehensive Redis client plugin for IntelliJ IDEA that allows you to connect to Redis servers, execute commands, browse data, and access full Redis command documentation directly from your IDE.
